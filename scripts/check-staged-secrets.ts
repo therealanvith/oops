@@ -59,7 +59,6 @@ function checkStagedFiles(): void {
     "placeholder",
     "replace_with_a_secure_random_base64_secret_key_at_least_32_bytes_long",
     "servicedesk_dev_password",
-    "iitsm_dev_password",
     "default_jwt_secret_key_minimum_thirty_two_bytes_long",
     "default_dev_secret_key_change_in_production",
     "test_secret_key_minimum_thirty_two_characters_long_for_unit_tests",

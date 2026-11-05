@@ -3,7 +3,7 @@
   "configVersion": 1,
   "workspaces": {
     "": {
-      "name": "iitsm-frontend",
+      "name": "servicedesk-frontend",
       "dependencies": {
         "next": "15.0.3",
         "react": "18.3.1",
