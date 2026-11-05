@@ -1,0 +1,20 @@
+spring:
+  config:
+    activate:
+      on-profile: local
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/iitsm}
+    username: ${SPRING_DATASOURCE_USERNAME:iitsm_user}
+    password: ${SPRING_DATASOURCE_PASSWORD:iitsm_dev_password}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+
+logging:
+  level:
+    com.iitsm: DEBUG
+    org.springframework.web: INFO
+    org.springframework.security: INFO
+
