@@ -1,0 +1,47 @@
+# Environment & Secrets
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+
+# Backend build & logs
+backend/target/
+backend/.mvn/wrapper/maven-wrapper.jar
+*.log
+*.log.*
+
+# Frontend build & dependencies
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+frontend/.turbo/
+# Note: bun.lock must be committed
+
+# IDE & Editor files
+.idea/
+*.iml
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+.DS_Store
+Thumbs.db
+
+# Test coverage & reports
+coverage/
+jacoco.exec
+.nyc_output/
+
+# AI assistance & agent notes
+agents.md
+AGENT.md
+AGENTS.md
+claude.md
+CLAUDE.md
+copilot-instructions.md
+.cursorrules
+.windsurfrules
+.clinerules
