@@ -24,9 +24,10 @@ We use **Lefthook** to maintain code quality locally and prevent broken code or 
 - **`pre-commit`** (runs in parallel):
   - **`frontend-lint`**: Runs Biome on staged frontend files (`frontend/**/*.{ts,tsx,js,jsx,json,css}`). Formatting and import order issues are automatically repaired and re-staged (`stage_fixed: true`).
   - **`frontend-typecheck`**: Runs `bun run typecheck` across the frontend TypeScript project.
+  - **`backend-lint`**: Runs Spotless (Google Java Format 1.22.0) verification via `scripts/run-backend-lint.ts` when Java files are staged.
   - **`block-secrets`**: Executes `scripts/check-staged-secrets.ts`. Blocks any staged `.env` file (except `.env.example`) or staged commits introducing private keys or hardcoded secrets.
 - **`pre-push`**:
-  - **`backend-tests`**: Runs `mvn -B -q test` in `backend/` when commits touch backend files (warns gracefully if `mvn` is missing locally).
+  - **`backend-tests`**: Runs `mvn -B -q test` (or `./mvnw`) in `backend/` when commits touch backend files (warns gracefully if Maven/wrapper is missing locally).
   - **`frontend-checks`**: Runs `bun run lint` and `bun run typecheck` in `frontend/` when commits touch frontend files.
 
 ### Hook Installation
@@ -113,9 +114,16 @@ We recommend using clear, conventional commit messages:
 ## 7. Local Pre-Push Checklist
 
 ### Backend Checks
-From the `backend/` directory:
+From the `backend/` directory (or use system `mvn`):
 ```bash
-mvn -B clean verify
+# Check code formatting (Google Java Format)
+./mvnw spotless:check
+
+# Automatically format all Java files
+./mvnw spotless:apply
+
+# Run tests and architecture verification
+./mvnw -B clean verify
 ```
 
 ### Frontend Checks

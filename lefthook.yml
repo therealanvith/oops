@@ -10,6 +10,9 @@ pre-commit:
       root: "frontend/"
       glob: "frontend/**/*.{ts,tsx}"
       run: bun run typecheck
+    backend-lint:
+      glob: "backend/**/*.java"
+      run: bun ./scripts/run-backend-lint.ts
     block-secrets:
       run: bun ./scripts/check-staged-secrets.ts
 
@@ -22,4 +25,3 @@ pre-push:
       root: "frontend/"
       glob: "frontend/**"
       run: bun run lint && bun run typecheck
-
