@@ -1,7 +1,3 @@
 package com.servicedesk.api.dto;
 
-public record HealthResponse(
-        String status,
-        String service,
-        String time
-) {}
+public record HealthResponse(String status, String service, String time) {}

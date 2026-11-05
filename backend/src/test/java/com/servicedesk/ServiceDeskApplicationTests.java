@@ -6,8 +6,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 @SpringBootTest
 class ServiceDeskApplicationTests {
 
-    @Test
-    void contextLoads() {
-        // Verifies Spring application context initializes cleanly with in-memory H2 configuration
-    }
+  @Test
+  void contextLoads() {
+    // Verifies Spring application context initializes cleanly with in-memory H2 configuration
+  }
 }
