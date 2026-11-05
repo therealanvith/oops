@@ -1,38 +1,62 @@
 import { spawnSync } from "node:child_process";
+import * as fs from "node:fs";
 import * as path from "node:path";
 
 /**
  * Pre-push backend test runner.
  *
- * Runs `mvn -B -q test` in `./backend` if Maven is installed.
- * If Maven is not installed locally, gracefully prints a warning and delegates
+ * Runs `mvn -B -q test` in `./backend` if `mvn` or `mvnw` is available.
+ * If neither is installed locally, gracefully prints a warning and delegates
  * enforcement to GitHub Actions CI.
  */
-function isMavenAvailable(): boolean {
+function findMavenCommand(backendDir: string): string | null {
   try {
     const check = spawnSync("mvn", ["-version"], {
       shell: true,
       stdio: "ignore",
     });
-    return check.status === 0;
-  } catch {
-    return false;
+    if (check.status === 0) {
+      return "mvn";
+    }
+  } catch {}
+
+  const isWindows = process.platform === "win32";
+  const wrapperScript = isWindows
+    ? path.join(backendDir, "mvnw.cmd")
+    : path.join(backendDir, "mvnw");
+  const wrapperCommand = isWindows ? ".\\mvnw.cmd" : "./mvnw";
+
+  if (fs.existsSync(wrapperScript)) {
+    try {
+      const check = spawnSync(wrapperCommand, ["-version"], {
+        cwd: backendDir,
+        shell: true,
+        stdio: "ignore",
+      });
+      if (check.status === 0) {
+        return wrapperCommand;
+      }
+    } catch {}
   }
+
+  return null;
 }
 
 function runBackendTests(): void {
-  if (!isMavenAvailable()) {
+  const backendDir = path.resolve(process.cwd(), "backend");
+  const mvnCmd = findMavenCommand(backendDir);
+
+  if (!mvnCmd) {
     console.warn(
-      "\n[WARNING] Apache Maven ('mvn') was not found in PATH.\n" +
+      "\n[WARNING] Neither Apache Maven ('mvn') nor a runnable Maven Wrapper was found in PATH.\n" +
         "  Skipping local pre-push backend tests. GitHub Actions CI will run full verification.\n"
     );
     process.exit(0);
   }
 
-  const backendDir = path.resolve(process.cwd(), "backend");
-  console.log("\n[pre-push] Running backend test suite (mvn -B -q test)...");
+  console.log("\n[pre-push] Running backend test suite (test)...");
 
-  const result = spawnSync("mvn", ["-B", "-q", "test"], {
+  const result = spawnSync(mvnCmd, ["-B", "-q", "test"], {
     cwd: backendDir,
     shell: true,
     stdio: "inherit",
@@ -50,4 +74,3 @@ function runBackendTests(): void {
 }
 
 runBackendTests();
-

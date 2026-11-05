@@ -66,8 +66,8 @@ Ensure the following tools are installed on your workstation:
 ## Git Hooks & Quality Checks (Lefthook)
 
 Lefthook automatically validates your work before it enters git history:
-- **`pre-commit`**: Automatically formats staged files with Biome, checks TypeScript types, and prevents staging secret files (`.env`) or private keys.
-- **`pre-push`**: Runs backend tests (`mvn -B -q test`) and frontend checks before code is sent to the remote.
+- **`pre-commit`**: Automatically formats staged frontend files with Biome, validates Java formatting with Spotless (Google Java Format), checks TypeScript types, and prevents staging secret files (`.env`) or private keys.
+- **`pre-push`**: Runs backend tests (`mvn -B -q test` or `./mvnw`) and frontend checks before code is sent to the remote.
 
 To run hooks manually:
 ```bash
@@ -80,10 +80,16 @@ bunx lefthook run pre-push
 ## Local Development & Quality Checks
 
 ### Backend Checks
-From the `backend/` directory:
+From the `backend/` directory (using `./mvnw` or system `mvn`):
 ```bash
+# Check Java code formatting (Google Java Format)
+./mvnw spotless:check
+
+# Automatically format Java code
+./mvnw spotless:apply
+
 # Run unit, integration, and ArchUnit architecture tests
-mvn -B verify
+./mvnw -B verify
 ```
 *Note*: Tests execute against an embedded H2 database and do not require Docker.
 

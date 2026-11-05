@@ -28,6 +28,10 @@ jobs:
           java-version: "21"
           cache: maven
 
+      - name: Spotless Java code formatting check
+        working-directory: ./backend
+        run: mvn -B spotless:check
+
       - name: Verify backend (tests & ArchUnit domain isolation)
         working-directory: ./backend
         run: mvn -B verify
