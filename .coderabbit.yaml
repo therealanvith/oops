@@ -1,0 +1,65 @@
+language: "en-US"
+early_access: false
+
+reviews:
+  profile: "chill"
+  request_changes_workflow: false
+  high_level_summary: true
+  poem: false
+  review_status: true
+  collapse_walkthrough: true
+  auto_review:
+    enabled: true
+    drafts: false
+    base_branches:
+      - main
+
+  path_filters:
+    - "!**/bun.lock"
+    - "!**/node_modules/**"
+    - "!**/.next/**"
+    - "!**/target/**"
+    - "!**/*.min.*"
+
+  path_instructions:
+    - path: "backend/src/main/java/com/servicedesk/domain/**"
+      instructions: |
+        This package must stay plain Java. Flag any import of org.springframework.*,
+        jakarta.persistence.*, jakarta.validation.*, or anything from the api or
+        infrastructure packages. Check OOP quality: encapsulation (private fields,
+        no public setters that bypass invariants), interfaces for strategies and
+        channels, inheritance only for true is-a, composition otherwise. Flag
+        anemic models, magic numbers, and illegal state transitions.
+    - path: "backend/src/main/java/com/servicedesk/api/**"
+      instructions: |
+        Controllers must use DTOs, never expose JPA entities, validate input,
+        and enforce role-based authorization and ownership checks. Flag leaked
+        stack traces and inconsistent error shapes.
+    - path: "backend/src/main/java/com/servicedesk/infrastructure/**"
+      instructions: |
+        Check SQL injection (no string-concatenated queries), secrets handling,
+        transaction boundaries, and that JPA entities stay out of the domain.
+    - path: "backend/src/main/resources/db/migration/**"
+      instructions: |
+        Applied Flyway migrations must never be edited; changes need a new
+        version. Check constraints, foreign keys, indexes, and that the SQL runs
+        on both PostgreSQL and H2.
+    - path: "backend/src/test/**"
+      instructions: |
+        Check that tests cover boundary cases, invalid input, authorization, and
+        business rules, and that time-dependent logic uses an injected Clock.
+    - path: "frontend/**"
+      instructions: |
+        Next.js App Router with TypeScript strict mode. The frontend is only an
+        API client: flag business logic, secrets, dangerouslySetInnerHTML, and
+        unhandled loading or error states. Formatting and linting use Biome only.
+    - path: ".github/workflows/**"
+      instructions: |
+        Flag unpinned third-party actions, overly broad permissions, and secrets
+        printed to logs.
+    - path: "docker-compose.yml"
+      instructions: |
+        Flag hardcoded credentials and containers running as root.
+
+chat:
+  auto_reply: true
