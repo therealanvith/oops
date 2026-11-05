@@ -4,6 +4,7 @@
 # Force scripts and shell configs to LF
 *.sh text eol=lf
 lefthook.yml text eol=lf
+.coderabbit.yaml text eol=lf
 scripts/* text eol=lf
 mvnw text eol=lf
 
