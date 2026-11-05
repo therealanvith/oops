@@ -24,16 +24,17 @@ function findMavenCommand(backendDir: string): string | null {
   const wrapperScript = isWindows
     ? path.join(backendDir, "mvnw.cmd")
     : path.join(backendDir, "mvnw");
+  const wrapperCommand = isWindows ? ".\\mvnw.cmd" : "./mvnw";
 
   if (fs.existsSync(wrapperScript)) {
     try {
-      const check = spawnSync(wrapperScript, ["-version"], {
+      const check = spawnSync(wrapperCommand, ["-version"], {
         cwd: backendDir,
         shell: true,
         stdio: "ignore",
       });
       if (check.status === 0) {
-        return wrapperScript;
+        return wrapperCommand;
       }
     } catch {}
   }
