@@ -1,0 +1,24 @@
+pre-commit:
+  parallel: true
+  commands:
+    frontend-lint:
+      root: "frontend/"
+      glob: "frontend/**/*.{ts,tsx,js,jsx,json,css}"
+      run: bunx biome check --write --no-errors-on-unmatched {staged_files}
+      stage_fixed: true
+    frontend-typecheck:
+      root: "frontend/"
+      glob: "frontend/**/*.{ts,tsx}"
+      run: bun run typecheck
+    block-secrets:
+      run: bun ./scripts/check-staged-secrets.ts
+
+pre-push:
+  commands:
+    backend-tests:
+      glob: "backend/**"
+      run: bun ./scripts/run-backend-tests.ts
+    frontend-checks:
+      root: "frontend/"
+      glob: "frontend/**"
+      run: bun run lint && bun run typecheck
