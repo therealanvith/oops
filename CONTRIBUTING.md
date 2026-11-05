@@ -80,7 +80,21 @@ While `git commit --no-verify` or `git push --no-verify` can bypass local hooks 
 
 ---
 
-## 5. Commit Message Style (Recommendation)
+## 5. Automated Code Review (CodeRabbit)
+
+We use **CodeRabbit** for AI-assisted pull request reviews:
+- **Scope & Frequency**: CodeRabbit analyzes and comments on every open pull request targeting `main`.
+- **Advisory Role**: All CodeRabbit suggestions and findings are strictly **advisory**. A human teammate must still review and approve the pull request.
+- **CI is the Real Gate**: CodeRabbit comments do not block merging directly; GitHub Actions CI (`backend`, `frontend`, `docker`) remains the true enforcement gate.
+- **Security & Privacy**: **Never paste real secrets, credentials, or private keys into PR comments or chat conversations with the bot.**
+- **Useful Commands**:
+  - `@coderabbitai review`: Requests a fresh incremental or full review of the PR.
+  - `@coderabbitai summary`: Generates or updates the high-level summary of PR changes.
+  - `@coderabbitai configuration`: Displays the currently active CodeRabbit configuration.
+
+---
+
+## 6. Commit Message Style (Recommendation)
 
 We recommend using clear, conventional commit messages:
 ```text
@@ -96,7 +110,7 @@ We recommend using clear, conventional commit messages:
 
 ---
 
-## 6. Local Pre-Push Checklist
+## 7. Local Pre-Push Checklist
 
 ### Backend Checks
 From the `backend/` directory:
