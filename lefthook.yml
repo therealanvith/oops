@@ -22,3 +22,4 @@ pre-push:
       root: "frontend/"
       glob: "frontend/**"
       run: bun run lint && bun run typecheck
+
