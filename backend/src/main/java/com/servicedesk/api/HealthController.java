@@ -13,15 +13,15 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/v1/health")
 public class HealthController {
 
-    private final Clock clock;
+  private final Clock clock;
 
-    public HealthController(Clock clock) {
-        this.clock = clock;
-    }
+  public HealthController(Clock clock) {
+    this.clock = clock;
+  }
 
-    @GetMapping
-    public ResponseEntity<HealthResponse> checkHealth() {
-        String utcIsoTime = DateTimeFormatter.ISO_INSTANT.format(Instant.now(clock));
-        return ResponseEntity.ok(new HealthResponse("UP", "servicedesk-backend", utcIsoTime));
-    }
+  @GetMapping
+  public ResponseEntity<HealthResponse> checkHealth() {
+    String utcIsoTime = DateTimeFormatter.ISO_INSTANT.format(Instant.now(clock));
+    return ResponseEntity.ok(new HealthResponse("UP", "servicedesk-backend", utcIsoTime));
+  }
 }
