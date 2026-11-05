@@ -3,8 +3,8 @@ import type { ReactNode } from "react";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "I-ITSM | Incident Resolution System",
-  description: "Intelligent IT Service Management & Incident Resolution System",
+  title: "ServiceDesk | Incident Resolution System",
+  description: "Intelligent IT Service Management & Incident Resolution System (ServiceDesk)",
 };
 
 export default function RootLayout({
@@ -53,7 +53,7 @@ export default function RootLayout({
                     color: "var(--text-primary)",
                   }}
                 >
-                  I-ITSM
+                  ServiceDesk
                 </span>
                 <span
                   style={{
@@ -61,7 +61,7 @@ export default function RootLayout({
                     color: "var(--text-muted)",
                   }}
                 >
-                  Core Platform
+                  Platform
                 </span>
               </div>
               <nav
@@ -105,7 +105,7 @@ export default function RootLayout({
                 alignItems: "center",
               }}
             >
-              <span>I-ITSM &bull; OOP Course Project</span>
+              <span>ServiceDesk &bull; OOP Course Project</span>
               <span>Backend Domain Isolation Enabled</span>
             </div>
           </footer>

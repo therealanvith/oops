@@ -1,6 +1,6 @@
-# I-ITSM Project Documentation
+# ServiceDesk Project Documentation
 
-This directory contains technical and design documentation for the Intelligent IT Service Management & Incident Resolution System (I-ITSM).
+This directory contains technical and design documentation for the ServiceDesk Incident Resolution System.
 
 ## Documentation Index
 

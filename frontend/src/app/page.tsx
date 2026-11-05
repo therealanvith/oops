@@ -42,7 +42,7 @@ export default function HomePage() {
             color: "var(--text-primary)",
           }}
         >
-          System Overview
+          ServiceDesk Overview
         </h1>
         <p
           style={{
@@ -51,8 +51,8 @@ export default function HomePage() {
             maxWidth: "680px",
           }}
         >
-          Intelligent IT Service Management &amp; Incident Resolution System. The backend domain
-          layer operates framework-free, connected to Next.js via a stateless REST API.
+          ServiceDesk Incident Resolution Platform. The backend domain layer operates
+          framework-free, connected to Next.js via a stateless REST API.
         </p>
       </section>
 

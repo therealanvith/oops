@@ -11,11 +11,11 @@
         <relativePath/>
     </parent>
 
-    <groupId>com.iitsm</groupId>
-    <artifactId>iitsm-backend</artifactId>
+    <groupId>com.servicedesk</groupId>
+    <artifactId>servicedesk-backend</artifactId>
     <version>0.1.0-SNAPSHOT</version>
-    <name>iitsm-backend</name>
-    <description>Intelligent IT Service Management and Incident Resolution System</description>
+    <name>servicedesk-backend</name>
+    <description>ServiceDesk - Intelligent Incident Resolution System</description>
 
     <properties>
         <java.version>21</java.version>
@@ -107,4 +107,3 @@
         </plugins>
     </build>
 </project>
-

@@ -1,18 +1,18 @@
 services:
   postgres:
     image: postgres:16-alpine
-    container_name: iitsm-postgres
+    container_name: servicedesk-postgres
     restart: unless-stopped
     environment:
-      POSTGRES_DB: ${POSTGRES_DB:-iitsm}
-      POSTGRES_USER: ${POSTGRES_USER:-iitsm_user}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-iitsm_dev_password}
+      POSTGRES_DB: ${POSTGRES_DB:-servicedesk}
+      POSTGRES_USER: ${POSTGRES_USER:-servicedesk_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-servicedesk_dev_password}
     ports:
       - "${POSTGRES_PORT:-5432}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-iitsm_user} -d ${POSTGRES_DB:-iitsm}"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-servicedesk_user} -d ${POSTGRES_DB:-servicedesk}"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -22,13 +22,13 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    container_name: iitsm-backend
+    container_name: servicedesk-backend
     restart: unless-stopped
     environment:
       SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-local}
-      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL:-jdbc:postgresql://postgres:5432/iitsm}
-      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME:-iitsm_user}
-      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD:-iitsm_dev_password}
+      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL:-jdbc:postgresql://postgres:5432/servicedesk}
+      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME:-servicedesk_user}
+      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD:-servicedesk_dev_password}
       JWT_SECRET: ${JWT_SECRET:-default_dev_secret_key_change_in_production}
       CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-http://localhost:3000}
     ports:
@@ -43,7 +43,7 @@ services:
       dockerfile: Dockerfile
       args:
         NEXT_PUBLIC_API_BASE_URL: ${NEXT_PUBLIC_API_BASE_URL:-http://localhost:8080/api/v1}
-    container_name: iitsm-frontend
+    container_name: servicedesk-frontend
     restart: unless-stopped
     environment:
       PORT: 3000
@@ -56,4 +56,3 @@ services:
 
 volumes:
   postgres_data:
-

@@ -1,6 +1,6 @@
 spring:
   application:
-    name: iitsm-backend-test
+    name: servicedesk-backend-test
   datasource:
     url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;MODE=PostgreSQL
     driver-class-name: org.h2.Driver
@@ -23,4 +23,3 @@ app:
     jwt-secret: test_secret_key_minimum_thirty_two_characters_long_for_unit_tests
     cors:
       allowed-origins: http://localhost:3000
-

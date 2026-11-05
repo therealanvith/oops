@@ -22,7 +22,6 @@ spring:
 
 logging:
   level:
-    com.iitsm: INFO
+    com.servicedesk: INFO
     org.springframework.web: WARN
     org.springframework.security: WARN
-
