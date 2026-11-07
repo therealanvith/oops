@@ -1,0 +1,82 @@
+erDiagram
+    USERS ||--o{ INCIDENTS : "reports"
+    USERS ||--o{ INCIDENTS : "assigned_to"
+    USERS ||--o{ USER_SKILLS : "has"
+    INCIDENTS ||--o{ INCIDENT_AUDIT_LOGS : "tracks"
+    INCIDENTS ||--o{ INCIDENT_COMMENTS : "contains"
+    USERS ||--o{ INCIDENT_COMMENTS : "authors"
+    USERS ||--o{ NOTIFICATIONS : "receives"
+    INCIDENTS ||--o{ NOTIFICATIONS : "references"
+
+    USERS {
+        uuid id PK
+        varchar_50 username UK
+        varchar_255 password_hash
+        varchar_100 full_name
+        varchar_100 email UK
+        varchar_30 role "EMPLOYEE | TECHNICIAN | ADMINISTRATOR"
+        boolean is_active
+        timestamp_with_time_zone created_at
+        timestamp_with_time_zone updated_at
+    }
+
+    USER_SKILLS {
+        uuid id PK
+        uuid user_id FK
+        varchar_50 category "NETWORK | HARDWARE | SOFTWARE | ACCESS"
+    }
+
+    INCIDENTS {
+        uuid id PK
+        varchar_20 incident_number UK "e.g. INC-1001"
+        varchar_200 title
+        text description
+        varchar_50 category "NETWORK | HARDWARE | SOFTWARE | ACCESS"
+        varchar_30 status "REPORTED | ASSIGNED | IN_PROGRESS | PENDING_INFO | RESOLVED | CLOSED | CANCELLED"
+        varchar_30 priority "P1_CRITICAL | P2_HIGH | P3_MEDIUM | P4_LOW"
+        varchar_30 impact "HIGH | MEDIUM | LOW"
+        varchar_30 urgency "HIGH | MEDIUM | LOW"
+        uuid reporter_id FK
+        uuid assignee_id FK "nullable"
+        timestamp_with_time_zone response_deadline
+        timestamp_with_time_zone resolution_deadline
+        timestamp_with_time_zone paused_at "nullable (needs-info)"
+        bigint paused_duration_seconds
+        varchar_30 sla_status "WITHIN_SLA | WARNING_BREACH_IMMINENT | BREACHED"
+        text resolution_notes "nullable"
+        timestamp_with_time_zone resolved_at "nullable"
+        timestamp_with_time_zone closed_at "nullable"
+        timestamp_with_time_zone created_at
+        timestamp_with_time_zone updated_at
+    }
+
+    INCIDENT_COMMENTS {
+        uuid id PK
+        uuid incident_id FK
+        uuid author_id FK
+        text comment_text
+        boolean is_internal "technician-only note"
+        timestamp_with_time_zone created_at
+    }
+
+    INCIDENT_AUDIT_LOGS {
+        uuid id PK
+        uuid incident_id FK
+        uuid actor_id FK "nullable (system actions)"
+        varchar_50 action "CREATED | STATUS_CHANGED | ASSIGNED | PRIORITY_OVERRIDDEN | SLA_BREACHED"
+        varchar_100 old_value "nullable"
+        varchar_100 new_value "nullable"
+        text remarks "nullable"
+        timestamp_with_time_zone created_at
+    }
+
+    NOTIFICATIONS {
+        uuid id PK
+        uuid recipient_id FK
+        uuid incident_id FK "nullable"
+        varchar_50 type "INCIDENT_ASSIGNED | STATUS_CHANGED | INFO_REQUESTED | SLA_WARNING | SLA_BREACHED"
+        varchar_255 title
+        text message
+        boolean is_read
+        timestamp_with_time_zone created_at
+    }

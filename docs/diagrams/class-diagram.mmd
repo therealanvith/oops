@@ -1,0 +1,278 @@
+classDiagram
+    direction TB
+
+    %% ==========================================
+    %% DOMAIN CORE ENTITIES & AGGREGATES
+    %% ==========================================
+    class Incident {
+        -IncidentId id
+        -String title
+        -String description
+        -Category category
+        -Priority priority
+        -Impact impact
+        -Urgency urgency
+        -UserId reporterId
+        -UserId assigneeId
+        -IncidentState currentState
+        -SlaWindow slaWindow
+        -Instant createdAt
+        -Instant updatedAt
+        +assign(UserId technicianId, UserId actorId)
+        +startWork(UserId technicianId)
+        +requestInfo(String question, UserId technicianId)
+        +provideInfo(String answer, UserId reporterId)
+        +resolve(String resolutionSummary, UserId technicianId)
+        +close(UserId actorId)
+        +cancel(String reason, UserId actorId)
+        +evaluateSla(Clock clock)
+        +getStatus() IncidentStatus
+    }
+
+    class IncidentId {
+        -UUID value
+        +of(UUID value) IncidentId
+        +generate() IncidentId
+        +getValue() UUID
+    }
+
+    class UserId {
+        -UUID value
+        +of(UUID value) UserId
+        +getValue() UUID
+    }
+
+    class User {
+        -UserId id
+        -String username
+        -String fullName
+        -String email
+        -Role role
+        -Set~Category~ skills
+        -int activeTicketsCount
+        +isAvailable() boolean
+        +hasSkill(Category category) boolean
+    }
+
+    class SlaWindow {
+        -Instant responseDeadline
+        -Instant resolutionDeadline
+        -Duration pausedDuration
+        -Instant pausedAt
+        -SlaStatus status
+        +pause(Instant now)
+        +resume(Instant now)
+        +checkBreach(Instant now) SlaStatus
+    }
+
+    class AuditLog {
+        -UUID id
+        -IncidentId incidentId
+        -UserId actorId
+        -String action
+        -String oldValue
+        -String newValue
+        -Instant timestamp
+        -String remarks
+    }
+
+    %% ==========================================
+    %% PATTERN 1: STATE PATTERN (Incident Lifecycle)
+    %% ==========================================
+    class IncidentState {
+        <<interface>>
+        +assign(Incident context, UserId technicianId, UserId actorId)
+        +startWork(Incident context, UserId technicianId)
+        +requestInfo(Incident context, String question, UserId technicianId)
+        +provideInfo(Incident context, String answer, UserId reporterId)
+        +resolve(Incident context, String resolutionSummary, UserId technicianId)
+        +close(Incident context, UserId actorId)
+        +cancel(Incident context, String reason, UserId actorId)
+        +getStatus() IncidentStatus
+    }
+
+    class ReportedState {
+        +assign(Incident context, UserId technicianId, UserId actorId)
+        +cancel(Incident context, String reason, UserId actorId)
+        +getStatus() IncidentStatus
+    }
+    class AssignedState {
+        +startWork(Incident context, UserId technicianId)
+        +assign(Incident context, UserId technicianId, UserId actorId)
+        +cancel(Incident context, String reason, UserId actorId)
+        +getStatus() IncidentStatus
+    }
+    class InProgressState {
+        +requestInfo(Incident context, String question, UserId technicianId)
+        +resolve(Incident context, String resolutionSummary, UserId technicianId)
+        +assign(Incident context, UserId technicianId, UserId actorId)
+        +getStatus() IncidentStatus
+    }
+    class PendingInfoState {
+        +provideInfo(Incident context, String answer, UserId reporterId)
+        +getStatus() IncidentStatus
+    }
+    class ResolvedState {
+        +close(Incident context, UserId actorId)
+        +getStatus() IncidentStatus
+    }
+    class ClosedState {
+        +getStatus() IncidentStatus
+    }
+    class CancelledState {
+        +getStatus() IncidentStatus
+    }
+
+    IncidentState <|.. ReportedState
+    IncidentState <|.. AssignedState
+    IncidentState <|.. InProgressState
+    IncidentState <|.. PendingInfoState
+    IncidentState <|.. ResolvedState
+    IncidentState <|.. ClosedState
+    IncidentState <|.. CancelledState
+    Incident *-- IncidentState
+
+    %% ==========================================
+    %% PATTERN 2: STRATEGY PATTERNS
+    %% ==========================================
+    class AssignmentStrategy {
+        <<interface>>
+        +selectTechnician(Incident incident, List~User~ availableTechnicians) Optional~User~
+    }
+    class RoundRobinAssignmentStrategy {
+        -AtomicInteger counter
+        +selectTechnician(Incident incident, List~User~ availableTechnicians) Optional~User~
+    }
+    class LeastLoadedAssignmentStrategy {
+        +selectTechnician(Incident incident, List~User~ availableTechnicians) Optional~User~
+    }
+    class SkillMatchAssignmentStrategy {
+        -AssignmentStrategy fallbackStrategy
+        +selectTechnician(Incident incident, List~User~ availableTechnicians) Optional~User~
+    }
+
+    AssignmentStrategy <|.. RoundRobinAssignmentStrategy
+    AssignmentStrategy <|.. LeastLoadedAssignmentStrategy
+    AssignmentStrategy <|.. SkillMatchAssignmentStrategy
+
+    class PriorityCalculationStrategy {
+        <<interface>>
+        +calculatePriority(Impact impact, Urgency urgency) Priority
+    }
+    class MatrixPriorityStrategy {
+        +calculatePriority(Impact impact, Urgency urgency) Priority
+    }
+    PriorityCalculationStrategy <|.. MatrixPriorityStrategy
+
+    class SimilarityStrategy {
+        <<interface>>
+        +calculateSimilarity(String textA, String textB) double
+    }
+    class JaccardSimilarityStrategy {
+        +calculateSimilarity(String textA, String textB) double
+    }
+    SimilarityStrategy <|.. JaccardSimilarityStrategy
+
+    %% ==========================================
+    %% PATTERN 3: OBSERVER PATTERN (Events & Listeners)
+    %% ==========================================
+    class DomainEvent {
+        <<interface>>
+        +occurredOn() Instant
+    }
+    class IncidentCreatedEvent {
+        -IncidentId incidentId
+        -UserId reporterId
+        -Priority priority
+        -Instant timestamp
+    }
+    class IncidentStatusChangedEvent {
+        -IncidentId incidentId
+        -IncidentStatus oldStatus
+        -IncidentStatus newStatus
+        -UserId actorId
+        -Instant timestamp
+    }
+    class SlaBreachedEvent {
+        -IncidentId incidentId
+        -Priority priority
+        -Instant timestamp
+    }
+
+    DomainEvent <|.. IncidentCreatedEvent
+    DomainEvent <|.. IncidentStatusChangedEvent
+    DomainEvent <|.. SlaBreachedEvent
+
+    class DomainEventPublisher {
+        <<interface>>
+        +publish(DomainEvent event)
+        +subscribe(DomainEventListener listener)
+    }
+
+    class DomainEventListener {
+        <<interface>>
+        +onEvent(DomainEvent event)
+    }
+
+    class AuditLogEventListener {
+        -AuditLogRepository auditLogRepo
+        +onEvent(DomainEvent event)
+    }
+    class NotificationEventListener {
+        -List~NotificationChannel~ channels
+        +onEvent(DomainEvent event)
+    }
+
+    DomainEventListener <|.. AuditLogEventListener
+    DomainEventListener <|.. NotificationEventListener
+    DomainEventPublisher o-- DomainEventListener
+
+    %% ==========================================
+    %% PATTERN 4: FACTORY PATTERN
+    %% ==========================================
+    class IncidentFactory {
+        -PriorityCalculationStrategy priorityStrategy
+        -Clock clock
+        +createIncident(String title, String desc, Category cat, Impact imp, Urgency urg, UserId reporter) Incident
+    }
+    IncidentFactory ..> Incident : creates
+
+    %% ==========================================
+    %% PATTERN 5: REPOSITORY & ADAPTER (HEXAGONAL / PORTS & ADAPTERS)
+    %% ==========================================
+    class IncidentRepository {
+        <<interface>>
+        +findById(IncidentId id) Optional~Incident~
+        +save(Incident incident) Incident
+        +findWithFilters(IncidentFilter filter) List~Incident~
+    }
+    class JpaIncidentRepositoryAdapter {
+        -SpringDataIncidentJpaRepository jpaRepo
+        +findById(IncidentId id) Optional~Incident~
+        +save(Incident incident) Incident
+        +findWithFilters(IncidentFilter filter) List~Incident~
+    }
+    IncidentRepository <|.. JpaIncidentRepositoryAdapter
+
+    class NotificationChannel {
+        <<interface>>
+        +send(NotificationMessage message)
+    }
+    class InAppNotificationChannel {
+        -NotificationDataRepository notificationRepo
+        +send(NotificationMessage message)
+    }
+    class EmailGatewayAdapter {
+        -EmailService emailService
+        +send(NotificationMessage message)
+    }
+    NotificationChannel <|.. InAppNotificationChannel
+    NotificationChannel <|.. EmailGatewayAdapter
+
+    %% Relationships
+    Incident *-- IncidentId
+    Incident *-- SlaWindow
+    Incident --> UserId : reporter & assignee
+    User *-- UserId
+    AuditLog --> IncidentId
+    AuditLog --> UserId
