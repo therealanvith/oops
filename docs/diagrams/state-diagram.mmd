@@ -1,0 +1,42 @@
+stateDiagram-v2
+    [*] --> REPORTED : Employee reports incident (initial state)
+
+    REPORTED --> ASSIGNED : Technician assigned (manual / strategy)
+    REPORTED --> CANCELLED : Reporter or Admin cancels ticket
+
+    ASSIGNED --> IN_PROGRESS : Technician starts diagnosis / work
+    ASSIGNED --> ASSIGNED : Technician or Admin reassigns
+    ASSIGNED --> CANCELLED : Admin cancels ticket
+
+    state IN_PROGRESS {
+        [*] --> Diagnosing
+        Diagnosing --> Remediating
+        Remediating --> Testing
+    }
+
+    IN_PROGRESS --> PENDING_INFO : Technician requests clarification (pauses SLA)
+    PENDING_INFO --> IN_PROGRESS : Reporter provides requested info (resumes SLA)
+
+    IN_PROGRESS --> RESOLVED : Technician provides resolution summary
+    IN_PROGRESS --> ASSIGNED : Reassigned to different tier / specialist
+
+    RESOLVED --> CLOSED : Reporter verifies and accepts resolution
+    RESOLVED --> IN_PROGRESS : Reporter rejects resolution (reopened within 48h)
+    RESOLVED --> CLOSED : System auto-closes after 48h inactivity
+
+    CLOSED --> [*] : Terminal state (immutable)
+    CANCELLED --> [*] : Terminal state (immutable)
+
+    note right of PENDING_INFO
+        SLA resolution clock is PAUSED while waiting for user info.
+        Resumes immediately upon user submission.
+    end note
+
+    note left of CLOSED
+        FORBIDDEN TRANSITIONS:
+        - CLOSED -> Any state (strictly immutable)
+        - CANCELLED -> Any state (strictly immutable)
+        - REPORTED -> RESOLVED / CLOSED (must pass through IN_PROGRESS)
+        - ASSIGNED -> CLOSED (must be resolved first)
+        - PENDING_INFO -> RESOLVED (must return to IN_PROGRESS first)
+    end note

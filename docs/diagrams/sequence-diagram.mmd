@@ -1,0 +1,71 @@
+sequenceDiagram
+    autonumber
+    actor Employee as Employee / Reporter
+    participant Controller as IncidentController (API)
+    participant AppService as IncidentApplicationService
+    participant Factory as IncidentFactory
+    participant PrioStrategy as MatrixPriorityStrategy
+    participant SimStrategy as JaccardSimilarityStrategy
+    participant AsgnStrategy as AssignmentStrategy (Active)
+    participant DomainAggregate as Incident (Aggregate Root)
+    participant Repo as IncidentRepository (Adapter)
+    participant EventPub as DomainEventPublisher
+    participant AuditListener as AuditLogEventListener
+    participant NotifListener as NotificationEventListener
+
+    Employee->>Controller: POST /api/v1/incidents (title, desc, category, impact, urgency)
+    activate Controller
+    Controller->>AppService: createIncident(CreateIncidentCommand)
+    activate AppService
+
+    %% Intelligent Similarity Check
+    AppService->>SimStrategy: calculateSimilarity(newDesc, historicalIncidents)
+    SimStrategy-->>AppService: List of matching similar incidents (>= 0.6)
+
+    %% Dynamic Priority Calculation via Factory
+    AppService->>Factory: createIncident(...)
+    activate Factory
+    Factory->>PrioStrategy: calculatePriority(impact, urgency)
+    PrioStrategy-->>Factory: computedPriority (e.g. P1_CRITICAL)
+    Factory-->>AppService: new Incident (Status: REPORTED, SlaWindow initialized)
+    deactivate Factory
+
+    %% Automated Assignment Strategy
+    AppService->>AsgnStrategy: selectTechnician(incident, availableTechnicians)
+    activate AsgnStrategy
+    AsgnStrategy-->>AppService: selectedTechnician (e.g. Tech_Alice)
+    deactivate AsgnStrategy
+
+    %% Domain State Transition
+    AppService->>DomainAggregate: assign(Tech_Alice.id, actorId)
+    activate DomainAggregate
+    DomainAggregate->>DomainAggregate: transitionState(AssignedState)
+    DomainAggregate->>DomainAggregate: recordEvent(IncidentAssignedEvent)
+    DomainAggregate-->>AppService: success
+    deactivate DomainAggregate
+
+    %% Persistence
+    AppService->>Repo: save(incident)
+    Repo-->>AppService: persistedIncident
+
+    %% Observer Event Dispatch
+    AppService->>EventPub: publish(IncidentAssignedEvent)
+    activate EventPub
+    EventPub->>AuditListener: onEvent(IncidentAssignedEvent)
+    activate AuditListener
+    AuditListener->>AuditListener: persistAuditRecord("ASSIGNED", null, Tech_Alice.id)
+    AuditListener-->>EventPub: done
+    deactivate AuditListener
+
+    EventPub->>NotifListener: onEvent(IncidentAssignedEvent)
+    activate NotifListener
+    NotifListener->>NotifListener: dispatchInAppNotification(Tech_Alice)
+    NotifListener->>NotifListener: dispatchEmailNotification(Tech_Alice)
+    NotifListener-->>EventPub: done
+    deactivate NotifListener
+    deactivate EventPub
+
+    AppService-->>Controller: IncidentResponseDTO (id, number, status, priority, assignee)
+    deactivate AppService
+    Controller-->>Employee: 201 Created (IncidentResponseDTO + SimilarIncidentsList)
+    deactivate Controller

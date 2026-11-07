@@ -1,0 +1,70 @@
+graph LR
+    subgraph Actors
+        Emp["fa:fa-user Employee<br/>(End-User)"]
+        Tech["fa:fa-wrench Technician<br/>(Support Engineer)"]
+        Admin["fa:fa-cogs Administrator<br/>(IT Manager)"]
+        Cron["fa:fa-clock System Scheduler<br/>(Background Daemon)"]
+    end
+
+    subgraph "Incident Management Subsystem"
+        UC_Report["Report Incident"]
+        UC_ViewOwn["View My Reported Incidents"]
+        UC_AddComment["Add Diagnostic Comment"]
+        UC_ProvideInfo["Provide Requested Information"]
+        UC_CloseConfirm["Verify & Close Incident"]
+        UC_Cancel["Cancel Incident"]
+
+        UC_ViewQueue["View Assigned Queue & Worklist"]
+        UC_StartWork["Start Work / Diagnose"]
+        UC_RequestInfo["Request Info (Needs-Info Loop)"]
+        UC_Resolve["Resolve Incident with Root Cause"]
+        UC_Reassign["Reassign Incident"]
+
+        UC_ViewAll["View Global Incident Overview"]
+        UC_OverridePrio["Override Incident Priority"]
+    end
+
+    subgraph "Intelligence & Automation Subsystem"
+        UC_CalcPriority["Dynamic Priority Calculation (Impact x Urgency)"]
+        UC_AutoAssign["Auto-Assign Technician (RoundRobin / LeastLoaded / Skill)"]
+        UC_DetectDup["Detect Similar / Duplicate Incidents (Jaccard)"]
+        UC_CheckSLA["Evaluate SLA Deadlines & Escalation"]
+    end
+
+    subgraph "Administration & Auditing Subsystem"
+        UC_ConfigStrategy["Configure Active Assignment Strategy"]
+        UC_ManageUsers["Manage Technicians & Skills"]
+        UC_ViewAudit["View Chronological Audit Trail"]
+    end
+
+    %% Employee interactions
+    Emp --> UC_Report
+    Emp --> UC_ViewOwn
+    Emp --> UC_AddComment
+    Emp --> UC_ProvideInfo
+    Emp --> UC_CloseConfirm
+    Emp --> UC_Cancel
+
+    %% Technician interactions
+    Tech --> UC_ViewQueue
+    Tech --> UC_StartWork
+    Tech --> UC_RequestInfo
+    Tech --> UC_Resolve
+    Tech --> UC_Reassign
+    Tech --> UC_AddComment
+    Tech --> UC_ViewAudit
+
+    %% Administrator interactions
+    Admin --> UC_ViewAll
+    Admin --> UC_ConfigStrategy
+    Admin --> UC_ManageUsers
+    Admin --> UC_OverridePrio
+    Admin --> UC_Reassign
+    Admin --> UC_ViewAudit
+    Admin --> UC_Cancel
+
+    %% System / Intelligent hooks
+    UC_Report -.->|includes| UC_CalcPriority
+    UC_Report -.->|includes| UC_DetectDup
+    UC_Report -.->|triggers| UC_AutoAssign
+    Cron --> UC_CheckSLA
